@@ -1,0 +1,25 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+	{
+		"type": "shell",
+		"label": "g++ build progect",
+		"command": "make --jobs=14",
+		"args":
+		[
+		],
+		"options":
+		{
+		},
+		"problemMatcher":
+		[
+			//"$gcc"
+		],
+		"group":
+		{
+			"kind": "build",
+			"isDefault": true
+		}
+	}
+	]
+}
