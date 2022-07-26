@@ -75,7 +75,7 @@ int main()
 		}
 		else
 		{
-			usleep(500 * 1000);
+			usleep(50 * 1000);
 		}
 
 	}
