@@ -3,16 +3,22 @@
 
 CC = g++
 STD = -std=gnu++17
-CFLAGS = -O3 $(STD) -c -Wall -Wextra -pedantic
+
+CFLAGS = -O3 $(STD) -c -Werror -Wall -Wextra -Wpedantic -Wcast-align -Wcast-qual -Wconversion
+CFLAGS += -Wctor-dtor-privacy -Wenum-compare -Wfloat-equal -Wnon-virtual-dtor -Wold-style-cast
+CFLAGS += -Woverloaded-virtual -Wredundant-decls -Wsign-conversion -Wsign-promo -ftemplate-backtrace-limit=0
+
 LDFLAGS = -O3 $(STD) -lm -lrt -pthread
 
 HDR_SRV = $(wildcard src_srv/*.h)
 HDR_SRV += $(wildcard lib_msg/*.h)
+HDR_SRV += $(wildcard include/*.h)
 SRC_SRV = $(wildcard src_srv/*.cpp)
 SRCD_SRV = $(notdir $(SRC_SRV))
 
 HDR_CLN = $(wildcard src_cln/*.h)
 HDR_CLN += $(wildcard lib_msg/*.h)
+HDR_CLN += $(wildcard include/*.h)
 SRC_CLN = $(wildcard src_cln/*.cpp)
 SRCD_CLN = $(notdir $(SRC_CLN))
 

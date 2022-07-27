@@ -1124,7 +1124,7 @@ namespace msg
 			__set_status_flag_t& operator=(__set_status_flag_t&&) = delete;
 
 			constexpr
-			__set_status_flag_t(int st)
+			__set_status_flag_t(std::uint32_t st)
 				: m_status{st}
 			{
 			}
@@ -1137,7 +1137,7 @@ namespace msg
 				_i.status |= m_status;
 				return _i;
 			}
-			int m_status;
+			std::uint32_t m_status;
 		};
 		struct __create_set_status_flag_t
 		{
@@ -1148,7 +1148,7 @@ namespace msg
 			__create_set_status_flag_t& operator=(__create_set_status_flag_t&&) = delete;
 
 			constexpr
-			auto operator()(int st) const noexcept
+			auto operator()(std::uint32_t st) const noexcept
 			{
 				return __set_status_flag_t(st);
 			}
@@ -1163,7 +1163,7 @@ namespace msg
 			__clear_status_flag_t& operator=(__clear_status_flag_t&&) = delete;
 
 			constexpr
-			__clear_status_flag_t(int st)
+			__clear_status_flag_t(std::uint32_t st)
 				: m_status{st}
 			{
 			}
@@ -1176,7 +1176,7 @@ namespace msg
 				_i.status &= ~m_status;
 				return _i;
 			}
-			int m_status;
+			std::uint32_t m_status;
 		};
 		struct __create_clear_status_flag_t
 		{
@@ -1187,7 +1187,7 @@ namespace msg
 			__create_clear_status_flag_t& operator=(__create_clear_status_flag_t&&) = delete;
 
 			constexpr
-			auto operator()(int st) const noexcept
+			auto operator()(std::uint32_t st) const noexcept
 			{
 				return __clear_status_flag_t(st);
 			}

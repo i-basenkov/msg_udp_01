@@ -57,7 +57,7 @@ int main()
 	while (!stop_prog)
 	{
 		file_t f;
-		uint32_t Np = std::experimental::randint(100, 2000);
+		uint32_t Np = std::experimental::randint(100U, 2000U);
 		uint32_t Nb = 1472;
 		uint8_t d = 0;
 		for (uint32_t j = 0; j < Np; ++j)
