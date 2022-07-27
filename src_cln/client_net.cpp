@@ -243,7 +243,7 @@ void ClientNet::rcv_seq(net::msg_udp_ts& d)
 		}
 		for (auto i = works.begin(); i != works.end();)
 		{
-			if ((*i->second | in_work)
+			if ((*i->second | joinable)
 				&& ((*i->second | status) & 0x02) == 2
 			)
 			{
