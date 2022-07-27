@@ -38,38 +38,38 @@ TARGET_CLN = bin/cln_udp
 
 all: $(TARGET_SRV) $(TARGET_CLN)
 
-mk_dir:
-	mkdir -p bin
-	mkdir -p obj_srv
-	mkdir -p obj_cln
-	mkdir -p obj_shr
 
 $(TARGET_SRV): $(OBJ_SHR) $(OBJ_SRV)
 	@echo
 	@echo Сервер: сборка ...
+	@if [ ! -d bin ]; then mkdir -p bin; fi
 	$(CC) $(LDFLAGS) $(OBJ_SRV) $(OBJ_SHR) -o $@
 
 $(TARGET_CLN): $(OBJ_SHR) $(OBJ_CLN)
 	@echo
 	@echo Клиент: сборка ...
+	@if [ ! -d bin ]; then mkdir -p bin; fi
 	$(CC) $(LDFLAGS) $(OBJ_CLN) $(OBJ_SHR) -o $@
 
 
 
-obj_srv/%.o: src_srv/%.cpp $(HDR_SRV) Makefile mk_dir
+obj_srv/%.o: src_srv/%.cpp $(HDR_SRV) Makefile
 	@echo
 	@echo Сервер: компиляция $< ...
+	@if [ ! -d obj_srv ]; then mkdir -p obj_srv; fi
 	$(CC) $(CFLAGS) $(DEFS) $< -o $@
 
 
-obj_cln/%.o: src_cln/%.cpp $(HDR_CLN) Makefile mk_dir
+obj_cln/%.o: src_cln/%.cpp $(HDR_CLN) Makefile
 	@echo
 	@echo Клиент: компиляция $< ...
+	@if [ ! -d obj_cln ]; then mkdir -p obj_cln; fi
 	$(CC) $(CFLAGS) $(DEFS) $< -o $@
 
-obj_shr/%.o: src_shr/%.cpp $(HDR_SHR) Makefile mk_dir
+obj_shr/%.o: src_shr/%.cpp $(HDR_SHR) Makefile
 	@echo
 	@echo Display: компиляция $< ...
+	@if [ ! -d obj_shr ]; then mkdir -p obj_shr; fi
 	$(CC) $(CFLAGS) $(DEFS) $< -o $@
 
 run: run_srv run_cln
