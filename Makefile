@@ -31,12 +31,15 @@ TARGET_CLN = bin/cln_udp
 #all: $(SRC_SRV) $(HDR_SRV) $(TARGET_SRV) $(SRC_CLN) $(HDR_CLN) $(TARGET_CLN)
 all: $(TARGET_SRV) $(TARGET_CLN)
 
-$(TARGET_SRV): $(OBJ_SRV)
+mk_dir:
+	mkdir bin
+
+$(TARGET_SRV): mk_dir $(OBJ_SRV)
 	@echo
 	@echo Сервер: сборка ...
 	$(CC) $(LDFLAGS) $(OBJ_SRV) -o $@
 
-$(TARGET_CLN): $(OBJ_CLN)
+$(TARGET_CLN): mk_dir $(OBJ_CLN)
 	@echo
 	@echo Клиент: сборка ...
 	$(CC) $(LDFLAGS) $(OBJ_CLN) -o $@

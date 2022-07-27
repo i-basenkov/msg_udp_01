@@ -226,8 +226,8 @@ namespace msg
 	namespace _detale
 	{
 
-		struct _block_thread_t;
-		struct _unblock_thread_t;
+//		struct _block_thread_t;
+//		struct _unblock_thread_t;
 
 		template <
 			typename WT
@@ -473,8 +473,8 @@ namespace msg
 		>
 		friend struct _detale::thread_worker_t;
 
-		friend struct _detale::_block_thread_t;
-		friend struct _detale::_unblock_thread_t;
+//		friend struct _detale::_block_thread_t;
+//		friend struct _detale::_unblock_thread_t;
 
 	private:
 		std::mutex m_bmtx;

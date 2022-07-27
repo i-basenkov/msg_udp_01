@@ -4,7 +4,7 @@
 	{
 		"type": "shell",
 		"label": "g++ build progect",
-		"command": "make --jobs=14",
+		"command": "make --jobs=6",
 		"args":
 		[
 		],
