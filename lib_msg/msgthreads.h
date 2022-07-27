@@ -269,8 +269,8 @@ namespace msg
 
 			friend struct __stop_t;
 			friend struct __status_t;
-			friend struct __set_status_t;
 			friend struct __set_status_flag_t;
+			friend struct __clear_status_flag_t;
 			friend struct __join_t;
 			friend struct __joinable_t;
 			friend struct __in_work_t;
