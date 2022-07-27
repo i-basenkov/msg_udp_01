@@ -32,7 +32,7 @@ TARGET_CLN = bin/cln_udp
 all: $(TARGET_SRV) $(TARGET_CLN)
 
 mk_dir:
-	mkdir bin
+	mkdir -p bin
 
 $(TARGET_SRV): mk_dir $(OBJ_SRV)
 	@echo

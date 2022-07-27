@@ -226,9 +226,6 @@ namespace msg
 	namespace _detale
 	{
 
-//		struct _block_thread_t;
-//		struct _unblock_thread_t;
-
 		template <
 			typename WT
 			, typename _MV, typename _EV, typename _BA, typename _TO
@@ -473,9 +470,6 @@ namespace msg
 		>
 		friend struct _detale::thread_worker_t;
 
-//		friend struct _detale::_block_thread_t;
-//		friend struct _detale::_unblock_thread_t;
-
 	private:
 		std::mutex m_bmtx;
 		std::condition_variable m_bcv;
@@ -505,7 +499,7 @@ namespace msg
 		  typename _MessageVariants
 		, typename _ErrorVariants
 		, typename _Timeout
-		>
+	>
 	class thread_interface_t
 	<
 		  _MessageVariants
@@ -650,7 +644,6 @@ namespace msg
 					}
 					this->handlers(vmsg, this->worker);
 				}
-				std::cout << "-------- stop queue thread --------" << std::endl;
 				this->thr_i.status(this->thr_i.status() & 0xfe);
 			}
 		};
@@ -1125,7 +1118,7 @@ namespace msg
 			__joinable_t& operator=(__joinable_t const&) = delete;
 			__joinable_t& operator=(__joinable_t&&) = delete;
 
-			//Возвратить статус потока
+			//Поток потенциально работающий?
 			template <typename I, is_thread_interface_b<I> = true>
 			constexpr
 			bool operator()(I& _i) const noexcept
@@ -1134,47 +1127,14 @@ namespace msg
 			}
 		};
 	}
-	//Возвратить статус потока
+	//Поток потенциально работающий?
 	constexpr
 	_detale::__joinable_t joinable;
 
-	//Возвратить статус потока
+	//Поток потенциально работающий?
 	template <typename I, is_thread_interface_b<I> = true>
 	constexpr
 	bool operator | (I& _i, _detale::__joinable_t const& _f) noexcept
-	{
-		return _f(_i);
-	}
-
-
-
-	namespace _detale
-	{
-		struct __in_work_t
-		{
-			__in_work_t() = default;
-			__in_work_t(__in_work_t const&) = delete;
-			__in_work_t(__in_work_t&&) = delete;
-			__in_work_t& operator=(__in_work_t const&) = delete;
-			__in_work_t& operator=(__in_work_t&&) = delete;
-
-			//Возвратить статус потока
-			template <typename I, is_thread_interface_b<I> = true>
-			constexpr
-			bool operator()(I& _i) const noexcept
-			{
-				return _i.m_thread.joinable();
-			}
-		};
-	}
-	//Возвратить статус потока
-	constexpr
-	_detale::__in_work_t in_work;
-
-	//Возвратить статус потока
-	template <typename I, is_thread_interface_b<I> = true>
-	constexpr
-	bool operator | (I& _i, _detale::__in_work_t const& _f) noexcept
 	{
 		return _f(_i);
 	}
@@ -1197,7 +1157,7 @@ namespace msg
 			{
 			}
 
-			//Возвратить статус потока
+			//Установить статус потока
 			template <typename I, is_thread_interface_b<I> = true>
 			constexpr
 			auto& operator()(I& _i) const noexcept
@@ -1223,11 +1183,11 @@ namespace msg
 		};
 
 	}
-	//Возвратить статус потока
+	//Установить статус потока
 	constexpr
 	_detale::__create_set_status_t set_status;
 
-	//Возвратить статус потока
+	//Установить статус потока
 	template <typename I, is_thread_interface_b<I> = true>
 	constexpr
 	auto& operator | (I& _i, _detale::__set_status_t const& _f) noexcept
