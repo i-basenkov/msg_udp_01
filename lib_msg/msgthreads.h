@@ -270,44 +270,16 @@ namespace msg
 			friend struct __stop_t;
 			friend struct __status_t;
 			friend struct __set_status_t;
+			friend struct __set_status_flag_t;
 			friend struct __join_t;
 			friend struct __joinable_t;
 			friend struct __in_work_t;
 
 		protected:
-			inline
-			int stop()
-			{
-				return m_stop;
-			}
-			inline
-			void stop(int _s)
-			{
-				m_stop = _s;
-			}
-
-			inline
-			int status()
-			{
-				int st = m_status;
-				return st;
-			}
-
-			inline
-			void status(int _s)
-			{
-				m_status = _s;
-			}
-
-			inline
-			auto& thread()
-			{
-				return m_thread;
-			}
+			std::atomic<std::uint32_t> status{0};
+			std::atomic<int> stop{0};
 
 		private:
-			std::atomic<int> m_stop{0};
-			std::atomic<int> m_status{0};
 			std::thread m_thread;
 		};
 
@@ -519,7 +491,7 @@ namespace msg
 			<_MessageVariants, _ErrorVariants, udp, _Timeout>>>
 		{
 			int cnt = 0;
-			while (this->status() != 1)
+			while (this->status != 1)
 			{
 				if (++cnt > 100)
 				{
@@ -626,8 +598,8 @@ namespace msg
 			void operator()() noexcept
 			{
 				_MV vmsg;
-				this->thr_i.status(this->thr_i.status() | 1);
-				while (!this->thr_i.stop())
+				this->thr_i.status |= 1;
+				while (!static_cast<std::uint32_t>(this->thr_i.stop))
 				{
 					{
 						std::unique_lock<std::mutex> ul(this->thr_i.m_mtx);
@@ -644,7 +616,7 @@ namespace msg
 					}
 					this->handlers(vmsg, this->worker);
 				}
-				this->thr_i.status(this->thr_i.status() & 0xfe);
+				this->thr_i.status &= 0xfe;
 			}
 		};
 
@@ -700,9 +672,9 @@ namespace msg
 
 			    std::unique_ptr<uint8_t[]> ubuf{new uint8_t[4096]};
 
-				this->thr_i.status(1);
+				this->thr_i.status |= 1;
 
-				while (!this->thr_i.stop())
+				while (!static_cast<std::uint32_t>(this->thr_i.stop))
 				{
 					pfd->revents = 0;
 					int res_poll = poll(pfd, 1, 100); 
@@ -743,7 +715,7 @@ namespace msg
 						break;
 					}
 				}
-				this->thr_i.status(0);
+				this->thr_i.status &= 0xfe;
 				shutdown(this->thr_i.sock(), SHUT_RDWR);
 				close(this->thr_i.sock());
 				this->thr_i.sock(0);
@@ -774,7 +746,7 @@ namespace msg
 
 	template <typename T>
 	struct is_thread_interface_queue<T
-		, std::void_t<decltype(std::declval<T>().m_stop)>
+		, std::void_t<decltype(std::declval<T>().stop)>
 		, std::void_t<decltype(std::declval<T>().m_thread)>
 		, std::void_t<decltype(std::declval<T>().m_queue)>
 	> : std::true_type {};
@@ -792,7 +764,7 @@ namespace msg
 
 	template <typename T>
 	struct is_thread_interface_net<T
-		, std::void_t<decltype(std::declval<T>().m_stop)>
+		, std::void_t<decltype(std::declval<T>().stop)>
 		, std::void_t<decltype(std::declval<T>().m_thread)>
 		, std::void_t<decltype(std::declval<T>().m_sock)>
 	> : std::true_type {};
@@ -848,7 +820,7 @@ namespace msg
 				thread_interface_t<_MV, _EV, _BA, _TO>& interface
 			) const noexcept
 			{
-				interface.m_stop = 0;
+				interface.stop = 0;
 				if constexpr (std::is_same_v<O, std::nullopt_t>)
 				{
 					if constexpr (std::is_same_v<std::decay_t<DS>, std::nullopt_t>)
@@ -1020,7 +992,7 @@ namespace msg
 			constexpr
 			auto& operator()(I& _i) const noexcept
 			{
-				_i.m_stop = 1;
+				_i.stop = 1;
 				return _i;
 			}
 		};
@@ -1054,7 +1026,7 @@ namespace msg
 			constexpr
 			auto operator()(I& _i) const noexcept
 			{
-				return _i.status();
+				return static_cast<std::uint32_t>(_i.status);
 			}
 		};
 	}
@@ -1143,16 +1115,16 @@ namespace msg
 
 	namespace _detale
 	{
-		struct __set_status_t
+		struct __set_status_flag_t
 		{
-			__set_status_t() = delete;
-			__set_status_t(__set_status_t const&) = delete;
-			__set_status_t(__set_status_t&&) = delete;
-			__set_status_t& operator=(__set_status_t const&) = delete;
-			__set_status_t& operator=(__set_status_t&&) = delete;
+			__set_status_flag_t() = delete;
+			__set_status_flag_t(__set_status_flag_t const&) = delete;
+			__set_status_flag_t(__set_status_flag_t&&) = delete;
+			__set_status_flag_t& operator=(__set_status_flag_t const&) = delete;
+			__set_status_flag_t& operator=(__set_status_flag_t&&) = delete;
 
 			constexpr
-			__set_status_t(int st)
+			__set_status_flag_t(int st)
 				: m_status{st}
 			{
 			}
@@ -1162,35 +1134,87 @@ namespace msg
 			constexpr
 			auto& operator()(I& _i) const noexcept
 			{
-				_i.status(m_status);
+				_i.status |= m_status;
 				return _i;
 			}
 			int m_status;
 		};
-		struct __create_set_status_t
+		struct __create_set_status_flag_t
 		{
-			__create_set_status_t() = default;
-			__create_set_status_t(__create_set_status_t const&) = delete;
-			__create_set_status_t(__create_set_status_t&&) = delete;
-			__create_set_status_t& operator=(__create_set_status_t const&) = delete;
-			__create_set_status_t& operator=(__create_set_status_t&&) = delete;
+			__create_set_status_flag_t() = default;
+			__create_set_status_flag_t(__create_set_status_flag_t const&) = delete;
+			__create_set_status_flag_t(__create_set_status_flag_t&&) = delete;
+			__create_set_status_flag_t& operator=(__create_set_status_flag_t const&) = delete;
+			__create_set_status_flag_t& operator=(__create_set_status_flag_t&&) = delete;
 
 			constexpr
 			auto operator()(int st) const noexcept
 			{
-				return __set_status_t(st);
+				return __set_status_flag_t(st);
+			}
+		};
+
+		struct __clear_status_flag_t
+		{
+			__clear_status_flag_t() = delete;
+			__clear_status_flag_t(__clear_status_flag_t const&) = delete;
+			__clear_status_flag_t(__clear_status_flag_t&&) = delete;
+			__clear_status_flag_t& operator=(__clear_status_flag_t const&) = delete;
+			__clear_status_flag_t& operator=(__clear_status_flag_t&&) = delete;
+
+			constexpr
+			__clear_status_flag_t(int st)
+				: m_status{st}
+			{
+			}
+
+			//Установить статус потока
+			template <typename I, is_thread_interface_b<I> = true>
+			constexpr
+			auto& operator()(I& _i) const noexcept
+			{
+				_i.status &= ~m_status;
+				return _i;
+			}
+			int m_status;
+		};
+		struct __create_clear_status_flag_t
+		{
+			__create_clear_status_flag_t() = default;
+			__create_clear_status_flag_t(__create_clear_status_flag_t const&) = delete;
+			__create_clear_status_flag_t(__create_clear_status_flag_t&&) = delete;
+			__create_clear_status_flag_t& operator=(__create_clear_status_flag_t const&) = delete;
+			__create_clear_status_flag_t& operator=(__create_clear_status_flag_t&&) = delete;
+
+			constexpr
+			auto operator()(int st) const noexcept
+			{
+				return __clear_status_flag_t(st);
 			}
 		};
 
 	}
-	//Установить статус потока
+
+	//Установить флаг статуса потока
 	constexpr
-	_detale::__create_set_status_t set_status;
+	_detale::__create_set_status_flag_t set_status_flag;
+
+	//Установить флаг статуса потока
+	constexpr
+	_detale::__create_clear_status_flag_t clear_status_flag;
 
 	//Установить статус потока
 	template <typename I, is_thread_interface_b<I> = true>
 	constexpr
-	auto& operator | (I& _i, _detale::__set_status_t const& _f) noexcept
+	auto& operator | (I& _i, _detale::__set_status_flag_t const& _f) noexcept
+	{
+		return _f(_i);
+	}
+
+	//Установить статус потока
+	template <typename I, is_thread_interface_b<I> = true>
+	constexpr
+	auto& operator | (I& _i, _detale::__clear_status_flag_t const& _f) noexcept
 	{
 		return _f(_i);
 	}

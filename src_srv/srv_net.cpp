@@ -69,7 +69,7 @@ void SrvWork::work(net::msg_udp_ts& d)
 //			display << disp_msg::msg1_t(std::move(os.str()));
 
 			options.self_interface
-			| set_status((options.self_interface | status) | 2)
+			| set_status_flag(2)
 			| stop;
 		}
 		else
