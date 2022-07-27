@@ -14,7 +14,7 @@
 #include "../lib_msg/msgutils.h"
 
 #include "../include/msg_types.h"
-#include "display.h"
+#include "../src_shr/display.h"
 
 
 #include <ctime>

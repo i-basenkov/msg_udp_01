@@ -3,7 +3,7 @@
 
 #include <map>
 
-#include "display.h"
+#include "../src_shr/display.h"
 
 using namespace msg;
 using namespace file_send;

@@ -14,7 +14,7 @@
 #include "../lib_msg/msgthreads.h"
 
 #include "../include/msg_types.h"
-#include "display.h"
+#include "../src_shr/display.h"
 
 #include <ctime>
 #include <cstddef>
@@ -83,7 +83,7 @@ int main()
 
 	std::cout << "-------- Клиент завершает работу --------" << std::endl;
 
-	usleep(5000 * 1000);
+	usleep(2000 * 1000);
 
 
 	client_net | stop | join;
