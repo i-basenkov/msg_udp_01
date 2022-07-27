@@ -125,9 +125,6 @@ public:
 	}
 
 	
-	static byte_array_t serializer(net::msg_udp const& m);
-	static net::msg_udp_ts deserializer(byte_array_t&);
-
 	void error_hadler(net::msg_err const&);
 	void rcv_seq(net::msg_udp_ts& d);
 

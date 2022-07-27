@@ -149,9 +149,6 @@ public:
 	}
 
 	
-	static byte_array_t serializer(net::msg_udp const&);
-	static net::msg_udp_ts deserializer(byte_array_t&);
-
 	void error_hadler(client_msg_err const&);
 	void timeout(client_msg_err const&);
 

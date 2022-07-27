@@ -20,6 +20,7 @@
 #include <cstddef>
 
 #include "client_net.h"
+#include "../include/msg_types.h"
 
 using namespace msg;
 
@@ -46,7 +47,7 @@ int main()
 		)
 		, ClientNet::msg_handlers
 		, ClientNet::error_handlers
-		, ClientNet::deserializer
+		, file_send::udp_test::deserializer
 	);
 
 

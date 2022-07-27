@@ -21,6 +21,7 @@
 #include <cstddef>
 
 #include "srv_net.h"
+#include "../include/msg_types.h"
 
 using namespace msg;
 
@@ -46,7 +47,7 @@ int main()
 		)
 		, SrvNet::msg_handlers
 		, SrvNet::error_handlers
-		, SrvNet::deserializer
+		, file_send::udp_test::deserializer
 	);
 
 	while (!stop_prog)

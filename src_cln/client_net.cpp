@@ -16,7 +16,7 @@ void ClientSend::send_01(net::msg_udp_ts& d)
 	std::ostringstream os;
 	d | to<net::msg_udp> | into >> [this, &os](auto&& d)
 	{
-		options.line_interface << ClientNet::serializer(d)
+		options.line_interface << udp_test::serializer(d)
 		| if_error >> [&os]()
 		{
 			display << disp_msg("Ошибка передачи ClientSend::send_01!");
@@ -143,34 +143,6 @@ void ClientWork::start_send(msg_client_ts&)
 void ClientWork::timeout(msg_client_ts&)
 {
 	std::cout << "-------- ClientWork::timeout --------" << std::endl;
-}
-
-
-byte_array_t ClientNet::serializer(net::msg_udp const& m)
-{
-	byte_array_t ba;
-	net::msg_head_pack_t hd;
-	hd.seq_number = byte_swap<endianness::host, endianness::network>(m.head.seq_number);
-	hd.seq_total = byte_swap<endianness::host, endianness::network>(m.head.seq_total);
-	hd.type = m.head.type;
-	memcpy(&hd.id, &m.head.id, 8);
-	ba.resize(sizeof(net::msg_head_pack_t));
-	memcpy(ba.data(), &hd, sizeof(hd));
-	std::move(m.data.begin(), m.data.end(), std::back_inserter(ba));
-	return ba;
-}
-
-net::msg_udp_ts ClientNet::deserializer(byte_array_t& _ba)
-{
-	net::msg_udp msg{};
-	net::msg_head_pack_t head{};
-	memcpy(&head, _ba.data(), sizeof(head));
-	msg.head.seq_number = byte_swap<endianness::network, endianness::host>(head.seq_number);
-	msg.head.seq_total = byte_swap<endianness::network, endianness::host>(head.seq_total);
-	msg.head.type = head.type;
-	memcpy(&msg.head.id, &head.id, 8);
-	std::move(_ba.begin()+=sizeof(head), _ba.end(), std::back_inserter(msg.data));
-	return msg;
 }
 
 void ClientNet::error_hadler(client_msg_err const& d)
