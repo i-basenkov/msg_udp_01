@@ -461,7 +461,7 @@ namespace msg
 
 		template <
 			typename WT
-			, typename _MV, typename _TT, typename _EV, typename _TOW
+			, typename _MV, typename _TT, typename _EV, typename _ITO
 			, typename _H
 			, typename _CH
 			, typename _DS
@@ -470,43 +470,32 @@ namespace msg
 
 		void add_client(std::uint64_t id, client_interface_t& i)
 		{
-			clients.emplace(id, std::ref(i));
+			m_clients.emplace(id, std::ref(i));
 		}
 		void remove_client(std::uint64_t id)
 		{
-			clients.erase(id);
+			m_clients.erase(id);
+		}
+		clients_t clients()
+		{
+			return m_clients;
 		}
 
-//	private:
-		clients_t clients;
+	private:
+		clients_t m_clients;
 	};
 
-	template <
-		  typename _I
-		, typename _TO
-	>
+	template <typename _I, typename _TO>
 	struct thread_timer{};
 
-	template <
-		  typename _MV
-		, typename _EV
-		, typename _ITO
-		, typename _TO
-	>
+	template <typename _MV, typename _EV, typename _ITO, typename _TO>
 	struct thread_timer<thread_interface_t<_MV, queue_thr, _EV, _ITO>, _TO>
 	{
 		using type = thread_interface_t<_MV, timer_thr, _EV, _TO>;
 	};
 
-	template <
-		  typename _I
-		, typename _TO
-	>
+	template <typename _I, typename _TO>
 	using thread_timer_t = typename thread_timer<_I, _TO>::type;
-
-
-
-
 
 	namespace _detale
 	{
@@ -716,7 +705,7 @@ namespace msg
 				while (!static_cast<std::uint32_t>(this->thr_i.stop()))
 				{
 					usleep(_TO() * 1000);
-					for (auto&& el : this->thr_i.clients)
+					for (auto&& el : this->thr_i.clients())
 					{
 						el.second.get().send(vmsg);
 					}

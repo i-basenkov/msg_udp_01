@@ -175,7 +175,7 @@ private:
 	client_send_interface_t send_thr;
 	works_t works;
 	std::uint64_t next_id = 0;
-	thread_timer_t<client_work_iterface_t, timeout<200>> timer;
+	thread_timer_t<client_work_iterface_t, timeout<10>> timer;
 };
 
 

@@ -63,7 +63,7 @@ void ClientWork::send_empl()
 	{
 		if (auto pos = get_rend_pos(); pos != options.file.end())
 		{
-			auto empl_res = sended_seqs.emplace(pos->first, sended_seq_t{5, std::move(pos->second)});
+			auto empl_res = sended_seqs.emplace(pos->first, sended_seq_t{10, std::move(pos->second)});
 			options.file.erase(pos);
 			send_pack(empl_res.first->first, empl_res.first->second.seq);
 		}
@@ -135,25 +135,20 @@ void ClientWork::start_send(msg_client_ts&)
 
 void ClientWork::timeout(msg_client_ts&)
 {
-	std::ostringstream os;
 	for (auto&& el : sended_seqs)
 	{
 		--el.second.secs;
-//		os << "-------- ClientWork::timeout id = "
-//		<< options.id
-//		<< " seq_number = " << el.first
-//		<< " secs = " <<el.second.secs
-//		<< " --------" << std::endl;
 		if (el.second.secs == 0)
 		{
-//			os << "-------- ClientWork::timeout id = "
-//			<< options.id << " seq_number = " << el.first <<  " - send"
-//			<< " --------" << std::endl;
+			std::ostringstream os;
+			os << "-------- ClientWork::timeout id = "
+			<< options.id << " seq_number = " << el.first <<  " - send"
+			<< " --------" << std::endl;
 			send_pack(el.first, el.second.seq);
 			el.second.secs = 5;
+			display.send(std::move(os.str()));
 		}
 	}
-	display.send(std::move(os.str()));
 }
 
 void ClientNet::error_hadler(client_msg_err const& in_d)
