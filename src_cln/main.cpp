@@ -20,7 +20,6 @@
 #include <cstddef>
 
 #include "client_net.h"
-#include "../include/msg_types.h"
 
 using namespace msg;
 
@@ -35,12 +34,16 @@ int main()
 
 	file_send::client_udp_interface_t client_net(ip_addr(127, 0, 0, 1), port(7001), port(7002));
 
-	display | start<>(disp_handlers);
+	//display | start<>(disp_handlers);
+	start_thread<>(display, disp_handlers);
 
 	mx_queue_t<file_t> file_queue;
-	client_net | start<ClientNet>
+
+//	client_net | start<ClientNet>
+	start_thread<ClientNet>
 	(
-		ClientNet::options_t
+		client_net
+		, ClientNet::options_t
 		(
 			client_net
 			, file_queue
@@ -72,7 +75,7 @@ int main()
 
 		if (file_queue.queue.size() < 28)
 		{
-			file_queue << f;
+			file_queue.emplace(f);
 		}
 		else
 		{
@@ -81,15 +84,16 @@ int main()
 
 	}
 
-	display << "-------- Клиент завершает работу --------";
+	display.send("-------- Клиент завершает работу --------");
 
 	usleep(2000 * 1000);
 
 
-	client_net | stop | join;
+	client_net.stop(1);
+	client_net.join();
 
-
-	display | stop | join;
+	display.stop(1);
+	display.join();
 
 
 

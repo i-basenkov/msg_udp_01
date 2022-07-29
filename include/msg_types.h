@@ -21,7 +21,7 @@ namespace msg::file_send
 
 	struct sended_seq_t
 	{
-		uint8_t secs;
+		std::uint64_t secs;
 		byte_array_t seq;
 	};
 	using sended_seq_list_t = std::map<std::uint32_t, sended_seq_t>;
@@ -63,7 +63,7 @@ namespace msg::file_send
 			  msg_error_t
 		>;
 
-		using udp_interface_t = thread_interface_t<msg_udp_ts, msg_err, udp>;
+		using udp_interface_t = thread_interface_t<msg_udp_ts, udp_thr, msg_err>;
 
 	}
 
@@ -87,12 +87,12 @@ namespace msg::file_send
 	using msg_client_ts = message_variants_t
 	<
 		  net::msg_udp
-		, timeout_t
+		, msg_timeout_t
 		, start_send_t
 	>;
 
 
-	using client_udp_interface_t = thread_interface_t<net::msg_udp_ts, client_msg_err, udp, timeout<1>>;
+	using client_udp_interface_t = thread_interface_t<net::msg_udp_ts, udp_thr, client_msg_err, timeout<1>>;
     using client_send_interface_t = thread_interface_t<net::msg_udp_ts>;
 	using client_work_iterface_t = thread_interface_t<msg_client_ts>;
 

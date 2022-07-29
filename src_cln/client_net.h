@@ -37,7 +37,7 @@ public:
 
 	handlers_inline msg_handlers
 	{
-		  &ClientSend::send_01 | hook<net::msg_udp>
+		hook<net::msg_udp>(&ClientSend::send_01)
 	};
 
 private:
@@ -95,9 +95,9 @@ public:
 
 	handlers_inline msg_handlers
 	{
-		  &ClientWork::work | hook<net::msg_udp>
-		, &ClientWork::timeout | hook<timeout_t>
-		, &ClientWork::start_send | hook<start_send_t>
+		  hook<net::msg_udp>(&ClientWork::work)
+		, hook<msg_timeout_t>(&ClientWork::timeout)
+		, hook<start_send_t>(&ClientWork::start_send)
 	};
 
 private:
@@ -107,11 +107,11 @@ private:
 	uint32_t crc = 0;
 };
 
-
 class ClientNet
 {
 public:
 	using works_t = std::map<std::uint64_t, std::unique_ptr<client_work_iterface_t>>;
+
 
 	struct options_t
 	{
@@ -130,39 +130,44 @@ public:
 	ClientNet(T&& o)
 		: options{std::forward<T>(o)}
 	{
-		send_thr | start<ClientSend>
+		start_thread<ClientSend>
 		(
-			ClientSend::options_t(
+			send_thr
+			, ClientSend::options_t(
 				options.interface
 			)
 			, ClientSend::msg_handlers
 		);
+		start_thread<>(timer, null_handlers);
 	}
 	inline
 	~ClientNet()
 	{
-		send_thr | stop | join;
+		timer.stop(1);
+		timer.join();
+		send_thr.stop(1);
+		send_thr.join();
 		for (auto& el : works)
 		{
-			*el.second | stop | join;
+			el.second->stop(1);
+			el.second->join();
 		}
 	}
-
 	
 	void error_hadler(client_msg_err const&);
-	void timeout(client_msg_err const&);
+	void timeout_proc(client_msg_err const&);
 
 	void rcv_seq(net::msg_udp_ts&);
 
 	handlers_inline msg_handlers
 	{
-		    &ClientNet::rcv_seq | hook<net::msg_udp>
+		hook<net::msg_udp>(&ClientNet::rcv_seq)
 	};
 
 	handlers_inline error_handlers
 	{
-		  &ClientNet::error_hadler | hook<msg_error_t>
-		, &ClientNet::timeout | hook<msg_timeout_t>
+		  hook<msg_error_t>(&ClientNet::error_hadler)
+		, hook<msg_timeout_t>(&ClientNet::timeout_proc)
 	};
 
 private:
@@ -170,6 +175,7 @@ private:
 	client_send_interface_t send_thr;
 	works_t works;
 	std::uint64_t next_id = 0;
+	thread_timer_t<client_work_iterface_t, timeout<200>> timer;
 };
 
 

@@ -11,7 +11,6 @@
 #include <signal.h>
 
 #include "../lib_msg/msgthreads.h"
-#include "../lib_msg/msgutils.h"
 
 #include "../include/msg_types.h"
 #include "../src_shr/display.h"
@@ -21,7 +20,6 @@
 #include <cstddef>
 
 #include "srv_net.h"
-#include "../include/msg_types.h"
 
 using namespace msg;
 
@@ -38,11 +36,12 @@ int main()
 	file_send::net::udp_interface_t srv_net(ip_addr(127, 0, 0, 1), port(7002), port(7001));
 
 
-	display | start<>(disp_handlers);
+	start_thread<>(display, disp_handlers);
 
-	srv_net | start<SrvNet>
+	start_thread<SrvNet>
 	(
-		SrvNet::options_t(
+		srv_net
+		, SrvNet::options_t(
 			srv_net
 		)
 		, SrvNet::msg_handlers
@@ -57,15 +56,16 @@ int main()
 
 	}
 
-	display << "-------- Сервер завершает работу --------";
+	display.send("-------- Сервер завершает работу --------");
 
 	usleep(2000 * 1000);
 
 
-	srv_net | stop | join;
+	srv_net.stop(1);
+	srv_net.join();
 
-
-	display | stop | join;
+	display.stop(1);
+	display.join();
 
 
 

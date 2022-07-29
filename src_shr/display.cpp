@@ -5,12 +5,10 @@
 
 using namespace msg;
 
-void print1(disp_msg_ts const& d)
+void print1(disp_msg_ts const& in_d)
 {
-	d | to<disp_msg> | data | into >> [](auto& d1)
-	{
-		std::cout << d1 << std::endl;
-	};
+	auto& d = std::get<disp_msg>(in_d);
+	std::cout << d.data << std::endl;
 }
 
 
