@@ -639,7 +639,6 @@ namespace msg
 				pfd->events = POLLIN | POLLHUP | POLLERR;
 				pfd->revents = 0;
 
-
 				sockaddr_in from{};
 				socklen_t fromlen;
 
