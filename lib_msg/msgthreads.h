@@ -497,6 +497,7 @@ namespace msg
 	template <typename _I, typename _TO>
 	using thread_timer_t = typename thread_timer<_I, _TO>::type;
 
+
 	namespace _detale
 	{
 		// Функциональный объект потока.
