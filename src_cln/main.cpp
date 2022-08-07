@@ -13,18 +13,17 @@
 
 #include "../lib_msg/msgthreads.h"
 
-#include "../include/msg_types.h"
-#include "../src_shr/display.h"
-
 #include <ctime>
 #include <cstddef>
 
 #include "client_net.h"
 
 using namespace msg;
+using namespace file_send;
 
 static std::atomic<int> stop_prog{0};
 static void sighandler(int){ stop_prog = 1; }
+
 
 
 int main()
@@ -34,47 +33,30 @@ int main()
 
 	file_send::client_udp_interface_t client_net(ip_addr(127, 0, 0, 1), port(7001), port(7002));
 
-	//display | start<>(disp_handlers);
-	start_thread<>(display, disp_handlers);
-
 	mx_queue_t<file_t> file_queue;
 
-//	client_net | start<ClientNet>
-	start_thread<ClientNet>
-	(
-		client_net
-		, ClientNet::options_t
-		(
-			client_net
-			, file_queue
-		)
-		, ClientNet::msg_handlers
-		, ClientNet::error_handlers
-		, file_send::udp_test::deserializer
-	);
-
+	client_net.thread = std::thread(worker_t<ClientNet>(client_net, file_queue));
 
 	usleep(1000 * 1000);
 
 
 	while (!stop_prog)
 	{
-		file_t f;
-		uint32_t Np = std::experimental::randint(100U, 2000U);
-		uint32_t Nb = 1472;
-		uint8_t d = 0;
-		for (uint32_t j = 0; j < Np; ++j)
+		if (file_queue.queue.size() < 6)
 		{
-			auto empl_res = f.emplace(j, byte_array_t());
-			for (uint32_t i = 0; i < Nb; ++i)
+			file_t f;
+			uint32_t Np = std::experimental::randint(100U, 2000U);
+			uint32_t Nb = 1472;
+			uint8_t d = 0;
+			for (uint32_t j = 0; j < Np; ++j)
 			{
-				empl_res.first->second.emplace_back(d);
-				++d;
+				auto empl_res = f.emplace(j, byte_array_t());
+				for (uint32_t i = 0; i < Nb; ++i)
+				{
+					empl_res.first->second.emplace_back(d);
+					++d;
+				}
 			}
-		}
-
-		if (file_queue.queue.size() < 28)
-		{
 			file_queue.emplace(f);
 		}
 		else
@@ -84,18 +66,13 @@ int main()
 
 	}
 
-	display.send("-------- Клиент завершает работу --------");
+	std::cout << "-------- Клиент завершает работу --------" << std::endl;
 
 	usleep(2000 * 1000);
 
 
-	client_net.stop(1);
+	client_net.stop |= 0x01;
 	client_net.join();
-
-	display.stop(1);
-	display.join();
-
-
 
 	return 0;
 }

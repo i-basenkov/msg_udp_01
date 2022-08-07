@@ -12,29 +12,19 @@ LDFLAGS = -O3 $(STD) -lm -lrt -pthread
 
 HDR_SRV = $(wildcard src_srv/*.h)
 HDR_SRV += $(wildcard lib_msg/*.h)
-HDR_SRV += $(wildcard include/*.h)
 SRC_SRV = $(wildcard src_srv/*.cpp)
 SRCD_SRV = $(notdir $(SRC_SRV))
 
 HDR_CLN = $(wildcard src_cln/*.h)
 HDR_CLN += $(wildcard lib_msg/*.h)
-HDR_CLN += $(wildcard include/*.h)
 SRC_CLN = $(wildcard src_cln/*.cpp)
 SRCD_CLN = $(notdir $(SRC_CLN))
-
-HDR_SHR = $(wildcard src_shr/*.h)
-HDR_SHR += $(wildcard lib_msg/*.h)
-SRC_SHR = $(wildcard src_shr/*.cpp)
-SRCD_SHR = $(notdir $(SRC_SHR))
 
 OBJECTS_SRV = $(SRCD_SRV:.cpp=.o)
 OBJ_SRV = $(addprefix obj_srv/, $(OBJECTS_SRV))
 
 OBJECTS_CLN = $(SRCD_CLN:.cpp=.o)
 OBJ_CLN = $(addprefix obj_cln/, $(OBJECTS_CLN))
-
-OBJECTS_SHR = $(SRCD_SHR:.cpp=.o)
-OBJ_SHR = $(addprefix obj_shr/, $(OBJECTS_SHR))
 
 
 TARGET_SRV = bin/srv_udp
@@ -45,17 +35,17 @@ TARGET_CLN = bin/cln_udp
 all: $(TARGET_SRV) $(TARGET_CLN)
 
 
-$(TARGET_SRV): $(OBJ_SHR) $(OBJ_SRV)
+$(TARGET_SRV): $(OBJ_SRV)
 	@echo
 	@echo Сервер: сборка ...
 	@if [ ! -d bin ]; then mkdir -p bin; fi
-	$(CC) $(LDFLAGS) $(OBJ_SRV) $(OBJ_SHR) -o $@
+	$(CC) $(LDFLAGS) $(OBJ_SRV) -o $@
 
-$(TARGET_CLN): $(OBJ_SHR) $(OBJ_CLN)
+$(TARGET_CLN): $(OBJ_CLN)
 	@echo
 	@echo Клиент: сборка ...
 	@if [ ! -d bin ]; then mkdir -p bin; fi
-	$(CC) $(LDFLAGS) $(OBJ_CLN) $(OBJ_SHR) -o $@
+	$(CC) $(LDFLAGS) $(OBJ_CLN) -o $@
 
 
 
@@ -72,11 +62,6 @@ obj_cln/%.o: src_cln/%.cpp $(HDR_CLN) Makefile
 	@if [ ! -d obj_cln ]; then mkdir -p obj_cln; fi
 	$(CC) $(CFLAGS) $(DEFS) $< -o $@
 
-obj_shr/%.o: src_shr/%.cpp $(HDR_SHR) Makefile
-	@echo
-	@echo Display: компиляция $< ...
-	@if [ ! -d obj_shr ]; then mkdir -p obj_shr; fi
-	$(CC) $(CFLAGS) $(DEFS) $< -o $@
 
 run: run_srv run_cln
 

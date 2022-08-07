@@ -7,14 +7,11 @@
 #include <unistd.h>
 #include <charconv>
 #include <atomic>
+#include <future>
 
 #include <signal.h>
 
 #include "../lib_msg/msgthreads.h"
-
-#include "../include/msg_types.h"
-#include "../src_shr/display.h"
-
 
 #include <ctime>
 #include <cstddef>
@@ -33,21 +30,9 @@ int main()
 	signal(SIGINT, sighandler);
 
 
-	file_send::net::udp_interface_t srv_net(ip_addr(127, 0, 0, 1), port(7002), port(7001));
+	net::udp_interface_t srv_net(ip_addr(127, 0, 0, 1), port(7002), port(7001));
 
-
-	start_thread<>(display, disp_handlers);
-
-	start_thread<SrvNet>
-	(
-		srv_net
-		, SrvNet::options_t(
-			srv_net
-		)
-		, SrvNet::msg_handlers
-		, SrvNet::error_handlers
-		, file_send::udp_test::deserializer
-	);
+	srv_net.thread = std::thread(worker_t<file_send::SrvNet>(srv_net));
 
 	while (!stop_prog)
 	{
@@ -56,18 +41,12 @@ int main()
 
 	}
 
-	display.send("-------- Сервер завершает работу --------");
+	std::cout << "-------- Сервер завершает работу --------" << std::endl;
 
 	usleep(2000 * 1000);
 
-
-	srv_net.stop(1);
+	srv_net.stop |= 0x01;
 	srv_net.join();
-
-	display.stop(1);
-	display.join();
-
-
 
 	return 0;
 }
