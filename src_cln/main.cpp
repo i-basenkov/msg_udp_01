@@ -25,7 +25,6 @@ static std::atomic<int> stop_prog{0};
 static void sighandler(int){ stop_prog = 1; }
 
 
-
 int main()
 {
 
