@@ -37,8 +37,6 @@ int main()
 
 	client_net.thread = std::thread(worker_t<ClientNet>(client_net, file_queue));
 
-	usleep(1000 * 1000);
-
 
 	while (!stop_prog)
 	{
@@ -61,7 +59,7 @@ int main()
 		}
 		else
 		{
-			usleep(50 * 1000);
+			usleep(100 * 1000);
 		}
 
 	}
@@ -69,7 +67,6 @@ int main()
 	std::cout << "-------- Клиент завершает работу --------" << std::endl;
 
 	usleep(2000 * 1000);
-
 
 	client_net.stop |= 0x01;
 	client_net.join();
