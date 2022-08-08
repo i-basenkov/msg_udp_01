@@ -169,9 +169,10 @@ namespace msg::file_send
 		for (auto i = works.begin(); i != works.end();)
 		{
 			if (i->second->joinable()
-				&& (i->second->status & 0x02) == 2
+				&& (i->second->status & 0x03) > 0
 			)
 			{
+				i->second->stop |= 0x01u;
 				i->second->join();
 				i = works.erase(i);
 			}

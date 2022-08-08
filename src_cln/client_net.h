@@ -128,7 +128,7 @@ namespace msg::file_send
 			, file_queue{fq}
 		{
 			send_thr.thread = std::thread(worker_t<net_sender_t>(send_thr, self_i));
-			timer.thread = std::thread(worker_t<ClientTimer>(timer, 100));
+			timer.thread = std::thread(worker_t<ClientTimer>(timer, 1000));
 		}
 		inline
 		~ClientNet()

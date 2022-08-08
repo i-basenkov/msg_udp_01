@@ -36,10 +36,11 @@ int main()
 
 	client_net.thread = std::thread(worker_t<ClientNet>(client_net, file_queue));
 
+	std::size_t max_thr = std::thread::hardware_concurrency();
 
 	while (!stop_prog)
 	{
-		if (file_queue.queue.size() < 6)
+		if (file_queue.queue.size() < max_thr)
 		{
 			file_t f;
 			uint32_t Np = std::experimental::randint(100U, 2000U);
