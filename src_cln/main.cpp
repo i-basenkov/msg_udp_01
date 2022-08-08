@@ -37,6 +37,9 @@ int main()
 	client_net.thread = std::thread(worker_t<ClientNet>(client_net, file_queue));
 
 	std::size_t max_thr = std::thread::hardware_concurrency();
+	max_thr = (max_thr < 2) ? 1 : max_thr/2;
+
+	std::cout << " max_thr = " << max_thr << std::endl;
 
 	while (!stop_prog)
 	{

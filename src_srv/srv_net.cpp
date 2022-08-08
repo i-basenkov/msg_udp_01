@@ -169,7 +169,7 @@ namespace msg::file_send
 		for (auto i = works.begin(); i != works.end();)
 		{
 			if (i->second->joinable()
-				&& (i->second->status & 0x03) > 0
+				&& (i->second->status & 0x02u) == 2
 			)
 			{
 				i->second->stop |= 0x01u;
@@ -181,10 +181,15 @@ namespace msg::file_send
 				++i;
 			}
 		}
-		auto nw = works.emplace(d.head.id, std::make_unique<srv_work_iterface_t>());
-		auto& thri = *(nw.first->second);
-		thri.thread = std::thread(worker_t<SrvWork>(thri, send_thr));
-		thri.send(std::move(d));
+		std::size_t max_thr = std::thread::hardware_concurrency();
+		max_thr = (max_thr < 2) ? 1 : max_thr/2;
+		if (works.size() < max_thr)
+		{
+			auto nw = works.emplace(d.head.id, std::make_unique<srv_work_iterface_t>());
+			auto& thri = *(nw.first->second);
+			thri.thread = std::thread(worker_t<SrvWork>(thri, send_thr));
+			thri.send(std::move(d));
+		}
 
 	}
 

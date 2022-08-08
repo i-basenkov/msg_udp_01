@@ -240,7 +240,9 @@ namespace msg::file_send
 	void ClientNet::timeout_handler(msg_timeout_t const& )
 	{
 		bool qe = true;
-		while (qe && works.size() < 6)
+		std::size_t max_thr = std::thread::hardware_concurrency();
+		max_thr = (max_thr < 2) ? 1 : max_thr/2;
+		while (qe && works.size() < max_thr)
 		{
 			file_t file;
 			{
